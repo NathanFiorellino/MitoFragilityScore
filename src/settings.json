@@ -1,0 +1,14 @@
+{
+    "PipelineExecutionID": "New Execution",
+    "PipelineProcessesToRun": [1, 2, 3, 4, 5, 6],
+    "ReferenceSequence": ["g38_Mt", "Short_Test"],
+    "IndividualsGroup": "Test_group",
+    "Construct Generation Specifications":{
+        "CenterStepSize": 50,
+        "Loop1StepSize": 50,
+        "Loop2StepSize": 50,
+        "Loop1MinimalSize" : 1000,
+        "Loop2MaximalSize" : 500,
+        "ArmSize": 50
+    }
+}

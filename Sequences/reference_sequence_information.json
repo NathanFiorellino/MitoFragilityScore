@@ -1,0 +1,15 @@
+{
+  "g38_Mt": {
+    "Path": "Reference/Homo_sapiens_assembly38.chrM.fasta",
+    "SubSequences": {
+      "Short_Test": [
+        10,
+        2000
+      ],
+      "Major_Ark": [
+        5720,
+        109
+      ]
+    }
+  }
+}

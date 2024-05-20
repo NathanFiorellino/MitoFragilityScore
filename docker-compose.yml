@@ -1,0 +1,16 @@
+name: mitfragilitystack
+version: '3'
+services:
+  mitofragilityservice:
+    container_name: mitofragilitycontainer
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/src
+      - ./Constructs:/Constructs
+      - ./Energies:/Energies
+      - ./Executions:/Executions
+      - ./Fragility:/Fragility
+      - ./Individuals:/Individuals
+      - ./Sequences:/Sequences

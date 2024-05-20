@@ -1,0 +1,25 @@
+import os
+
+EXECUTION_POSIBILITIES = ["LOCAL", "MINERVA"]
+
+##
+EXECUTING_ON = EXECUTION_POSIBILITIES[0]
+##
+
+## Python Version
+if EXECUTING_ON == EXECUTION_POSIBILITIES[0]:
+    PYTHON_VERSION = "python"
+elif EXECUTING_ON == EXECUTION_POSIBILITIES[1]:
+    PYTHON_VERSION = "python3"
+    
+## DuplexFold Executable  
+if EXECUTING_ON == EXECUTION_POSIBILITIES[0]:
+    DUPLEX_FOLD_PATH = f".{os.sep}..{os.sep}..{os.sep}DuplexFold{os.sep}DuplexFold.exe"
+elif EXECUTING_ON == EXECUTION_POSIBILITIES[1]:
+    DUPLEX_FOLD_PATH = "/opt/tools/RNAstructure/exe/DuplexFold"
+    
+## Usable NCPUS
+if EXECUTING_ON == EXECUTION_POSIBILITIES[0]:
+    NCPUS = 4
+elif EXECUTING_ON == EXECUTION_POSIBILITIES[1]:
+    NCPUS = 122
