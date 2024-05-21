@@ -206,7 +206,8 @@ def load_vcf(file_path):
 ## Standard file deleting
 def cleanup_instructions(execution_id):
     for process_number in [0, 1, 3, 4]:
-        os.remove(process_instructions_path(process_number, execution_id))
+        pass
+        #os.remove(process_instructions_path(process_number, execution_id))
 
 
 ### Forming IDs
