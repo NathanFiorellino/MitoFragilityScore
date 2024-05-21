@@ -1,8 +1,7 @@
 # MitoFragilityScore
 
 ## What is this for ?
-
-MitoFragilityScore is a    
+The MitoFragilitySSCore application is a tool that permits to score mitochondrial genomes based on their fragility. Their fragility in the sense of [citation], so fragility as a potential to form a particular secondary structure that is thought to lead to large scale deletions. The output of the application is thus a score that rates different 
 
 ## How to launch this application ?
 
@@ -30,7 +29,8 @@ Download this repository, run the docker compose tool in the repository, with th
 #### Procedure
 
 Download this repository, run the MitoFragilityScore.py in /src with python, with the following command:
-    python MitoFragility
+
+    python MitoFragility.py
 
 ## Launch 
 
