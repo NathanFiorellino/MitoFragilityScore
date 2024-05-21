@@ -72,6 +72,7 @@ def initialise_process(process_number, conditions_met, queues, processes_to_run)
         process = mp.Process(target=module.run_process, args=(EXECUTION_ID, queues["Task"][process_number], queues["Return"][process_number], queues["Errors"]))
         process.start()
         processes_to_run.remove(process_number)
+        print(f"Launched process, {uv.PROCESSES[process_number][0]}, execution ID: {process.pid}")
         
         # We keep track of the process ids so we can kill process if needed
         with open(f"{uv.EXECUTION_FOLDER}{EXECUTION_ID}{os.sep}subprocess_pids.txt", "a") as file:
@@ -159,8 +160,9 @@ if __name__ == "__main__":
     global EXECUTION_ID
     EXECUTION_ID = sys.argv[1]
     
-    text_update = f"Process Started << {time.time()}"
+    text_update = f"Application Started << {time.time()}"
     uf.dump_process_specific_log(EXECUTION_ID, PROCESS_NUMBER, text_update)
+    print(f"Launching application, execution ID:{EXECUTION_ID}")
     
     with open(uf.process_instructions_path(PROCESS_NUMBER, EXECUTION_ID), "r") as file:
         instructions = json.load(file)
@@ -201,12 +203,14 @@ if __name__ == "__main__":
     if finished:
         close_processes(running_processes)
         text_update = f"Process Finished Sucessfuly << {time.time()}"
+        print(f"Finished application sucessfuly, execution ID: {EXECUTION_ID}")
         uf.dump_process_specific_log(EXECUTION_ID, PROCESS_NUMBER, text_update)
         uf.cleanup_instructions(EXECUTION_ID)
     else:
         #look at error queue and put error in process_log
         error = queues["Errors"].get()
-        text_update = f"Process Finished with error: {error}"
+        text_update = f"Process Finished with error: {error} << {time.time()}"
+        print(f"Finished application with error, execution ID: {EXECUTION_ID}")
         uf.dump_process_specific_log(EXECUTION_ID, PROCESS_NUMBER, text_update)
         print(error)
         pass
