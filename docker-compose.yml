@@ -1,5 +1,4 @@
 name: mitfragilitystack
-version: '3'
 services:
   mitofragilityservice:
     container_name: mitofragilitycontainer

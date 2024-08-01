@@ -1,6 +1,6 @@
 {
     "PipelineExecutionID": "New Execution",
-    "PipelineProcessesToRun": [1, 2],
+    "PipelineProcessesToRun": [1, 2, 3, 4, 5, 6],
     "ReferenceSequence": ["g38_Mt", "Short_Test"],
     "IndividualsGroup": "Test_group",
     "Construct Generation Specifications":{

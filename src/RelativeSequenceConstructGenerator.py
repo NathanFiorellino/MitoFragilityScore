@@ -1,15 +1,16 @@
 
 import os
+import sys
 import traceback
 import csv
-
+import time
 import UtilitiesVariables as uv
 import UtilitiesFunction as uf
 
 PROCESS_NUMBER = 4
 
-
 def add_variants_to_sequence(sequence, sequence_variants, complementary):
+    """Adding variant inside of arm sequences"""
     modified_sequence = list(sequence)
     sequence_adjustment = 0
     for sequence_variant in sequence_variants:
@@ -42,6 +43,7 @@ def add_variants_to_sequence(sequence, sequence_variants, complementary):
 
 
 def create_windows_from_relative_sequence(relative_sequence, arm_starts, sequence, complementary_sequence, arm_size):
+    """Recreating windows for constructs that contain a variant"""
     arm_variants = {0: [], 1: [] , 2: [], 3: []}
     
     for variant in relative_sequence:
@@ -77,14 +79,15 @@ def create_windows_from_relative_sequence(relative_sequence, arm_starts, sequenc
     return window_1, window_2, window_3, window_4, window_5, window_6
 
 
-def prepare_individuals(individuals, reference_sequence_ID, construct_generation_specification_id, relative_sequence_information, center, return_queue, execution_id):
+def prepare_individuals(individuals, reference_sequence_ID, construct_generation_specification_id, relative_sequence_information, center, return_queue):
+    """Prepare variables and files for each individual"""
     individuals_variables = {}
     
     for individual_ID in individuals:
         
-        relative_sequence_ID = uf.form_relative_sequence_id(reference_sequence_ID, individual_ID)
+        relative_sequence_ID = uf.form_relative_sequence_ID(reference_sequence_ID, individual_ID)
         
-        new_center_id = uf.form_center_id(relative_sequence_ID, construct_generation_specification_id, center)
+        new_center_id = uf.form_center_ID(relative_sequence_ID, construct_generation_specification_id, center)
         new_construct_file_path = f"{uv.CONSTRUCT_FOLDER}{relative_sequence_ID}{os.sep}{new_center_id}-CF.csv"
         relative_sequence = relative_sequence_information[relative_sequence_ID]
             
@@ -100,20 +103,24 @@ def prepare_individuals(individuals, reference_sequence_ID, construct_generation
         
 
 def create_construct_directories(new_pairs_to_treat, reference_sequence_ID):
+    """Create directories for each individuals construct"""
     individuals = []
     for individuals_for_center in new_pairs_to_treat.values():
         individuals.extend([individual for individual in individuals_for_center])
     
     for individual_ID in individuals:
-        relative_sequence_ID = uf.form_relative_sequence_id(reference_sequence_ID, individual_ID)
+        relative_sequence_ID = uf.form_relative_sequence_ID(reference_sequence_ID, individual_ID)
         
         if not os.path.isdir(f"{uv.CONSTRUCT_FOLDER}{relative_sequence_ID}"):
             os.mkdir(f"{uv.CONSTRUCT_FOLDER}{relative_sequence_ID}")
 
 
 def load_relative_sequences(new_pairs_to_treat, reference_sequence_ID, reference_sequences_coordinates):
+    """Load relative sequences for all individuals that have been generated"""
     
     relative_sequence_informations = {}
+
+    # Collecting all individuals that have been generated
     individuals = []
     for individuals_for_center in new_pairs_to_treat.values():
         individuals.extend([individual for individual in individuals_for_center])
@@ -122,42 +129,36 @@ def load_relative_sequences(new_pairs_to_treat, reference_sequence_ID, reference
     individuals = list(set(individuals))
     
     for individual_ID in individuals:
-        relative_sequence_ID = uf.form_relative_sequence_id(reference_sequence_ID, individual_ID)
+        relative_sequence_ID = uf.form_relative_sequence_ID(reference_sequence_ID, individual_ID)
         relative_sequence_informations[relative_sequence_ID] = uf.load_relative_sequence(f"{uv.SEQUENCE_FOLDER}Relative{os.sep}{individual_ID}.csv", reference_sequences_coordinates)
     
     return  relative_sequence_informations
 
 
-
-def generate_relative_sequence_constructs(execution_id, new_pairs_to_treat, instructions, return_queue):
+def generate_relative_sequence_constructs(new_pairs_to_treat, instructions, return_queue):
+    """Generating relative sequence constructs based on individual vairants and reference sequenc constructs"""
         
     # Preparing generation level variables
-    construct_generation_specification_id = uf.form_construct_generation_specification_id(instructions[uv.CONSTRUCT_GENSPECS_KEY])
-    
+    construct_generation_specification_id = uf.form_construct_generation_specification_ID(instructions[uv.CONSTRUCT_GENSPECS_KEY])
     reference_sequence_name = instructions[uv.REFERENCE_SEQUENCE_KEY][0]
     subsequence_name = instructions[uv.REFERENCE_SEQUENCE_KEY][1]
+    arm_size = instructions[uv.CONSTRUCT_GENSPECS_KEY][uv.ARM_SIZE_KEY]
+
+    # Load sequences
     sequence, complementary_sequence, reference_sequences_coordinates = uf.load_reference_sequence(reference_sequence_name, subsequence_name)
-    reference_sequence_ID = uf.form_reference_sequence_id(reference_sequence_name, subsequence_name)
-    
+    reference_sequence_ID = uf.form_reference_sequence_ID(reference_sequence_name, subsequence_name)
     relative_sequence_information = load_relative_sequences(new_pairs_to_treat, reference_sequence_ID, reference_sequences_coordinates)
     
     create_construct_directories(new_pairs_to_treat, reference_sequence_ID)
-    
-    arm_size = instructions[uv.CONSTRUCT_GENSPECS_KEY][uv.ARM_SIZE_KEY]
     
     for center_ID, individuals in new_pairs_to_treat.items():
         
         # Preparing center level variables
         sequence_construct_folder_path = f"{uv.CONSTRUCT_FOLDER}{reference_sequence_ID}{os.sep}"
         construct_file_path = f"{sequence_construct_folder_path}{center_ID}-CF.csv"
-        
         center = int(center_ID.split("-")[-1])
         
-        # User progression update
-        text_update = f"Generating Constructs for individuals >> {center_ID} >> {individuals} >> in sequence {reference_sequence_ID}"
-        uf.dump_process_specific_log(execution_id, PROCESS_NUMBER, text_update)
-        
-        individuals_variables = prepare_individuals(individuals, reference_sequence_ID, construct_generation_specification_id, relative_sequence_information, center, return_queue, execution_id)
+        individuals_variables = prepare_individuals(individuals, reference_sequence_ID, construct_generation_specification_id, relative_sequence_information, center, return_queue)
         treated_new_center_IDs = []
         
         with open(construct_file_path, "r") as file:
@@ -168,7 +169,6 @@ def generate_relative_sequence_constructs(execution_id, new_pairs_to_treat, inst
                     
                 # Gathering construct defining variables
                 construct_id = row[0]
-                
                 arm_3_start = int(construct_id.split("-")[13])
                 arm_4_start = int(construct_id.split("-")[14])
         
@@ -198,7 +198,7 @@ def generate_relative_sequence_constructs(execution_id, new_pairs_to_treat, inst
                     
                     if change_in_arms:
                         # Modiyfing windows according to relative sequence
-                        new_construct_id = uf.form_construct_id(new_center_id, arm_3_start, arm_4_start)
+                        new_construct_id = uf.form_construct_ID(new_center_id, arm_3_start, arm_4_start)
                         windows = create_windows_from_relative_sequence(relative_sequence, [center - arm_size, center + 1, arm_3_start, arm_4_start], sequence, complementary_sequence, arm_size)
                         uf.dump_construct_file_line(
                             new_construct_file_path, [new_construct_id, row[1] , row[2], row[3], row[4], row[5],
@@ -212,9 +212,9 @@ def generate_relative_sequence_constructs(execution_id, new_pairs_to_treat, inst
 
 
 def get_new_pairs_from_new_center(new_pairs, new_center, individuals_to_treat):
-        
+    """Adds new center to be treated for each individual"""
+    
     for individual_ID in individuals_to_treat:
-        
         if new_center in new_pairs:
             new_pairs[new_center].append(individual_ID)
         else:
@@ -222,6 +222,7 @@ def get_new_pairs_from_new_center(new_pairs, new_center, individuals_to_treat):
 
 
 def get_new_pairs_from_new_individual(new_pairs, new_individual, centers_to_treat):
+    """Adds all already generated centers to new individual"""
         
     for center_ID in centers_to_treat:
         if center_ID in new_pairs:
@@ -231,51 +232,54 @@ def get_new_pairs_from_new_individual(new_pairs, new_individual, centers_to_trea
 
 
 def get_new_individuals_to_treat(task_queue, individuals_to_treat, centers_to_treat, new_pairs_to_treat, proceses_done):
+    """Extracts new centers to treat from task queue"""
     
     while not task_queue.empty():
         
         new_task = task_queue.get()
         
+        # Note: To generate a relative construct we need two things: the reference constructs and the variants.
+
+        # Collecting reference constructs
         if new_task[0] == 1:
-            if new_task[1]== "Done":
+            if new_task[1]== uv.DONE:
                 proceses_done[0] = True
             else:
                 centers_to_treat.append(new_task[1])
                 get_new_pairs_from_new_center(new_pairs_to_treat, new_task[1], individuals_to_treat)
-                
+        
+        # Collecting individuals/variants
         elif new_task[0] == 3:
-            if new_task[1]== "Done":
+            if new_task[1]== uv.DONE:
                 proceses_done[1] = True
             else:
                 individuals_to_treat.append(new_task[1])  
                 get_new_pairs_from_new_individual(new_pairs_to_treat, new_task[1], centers_to_treat)
   
 
-def relative_sequence_contruct_generation(execution_id, task_queue, return_queue):
+def relative_sequence_contruct_generation(instructions, task_queue, return_queue):
+    """Generates constructs from a given reference sequence and given individuals and variants"""
     
     # Preapring generation level variables
     proceses_done = [False, False]
     individuals_to_treat = []
     centers_to_treat = []
     
-    # Loading instructions
-    instructions = uf.load_instructions(PROCESS_NUMBER, execution_id)
-    
-    while True:
-            
+    while True: 
         new_pairs_to_treat = {}
         get_new_individuals_to_treat(task_queue, individuals_to_treat, centers_to_treat, new_pairs_to_treat, proceses_done)
-        generate_relative_sequence_constructs(execution_id, new_pairs_to_treat, instructions, return_queue)
+        generate_relative_sequence_constructs(new_pairs_to_treat, instructions, return_queue)
 
         if proceses_done[0] and proceses_done[1]:
-            return_queue.put((PROCESS_NUMBER, "Done"))
-            text_update = f"Generating relative constructs done"
-            uf.dump_process_specific_log(execution_id, PROCESS_NUMBER, text_update)
+            return_queue.put((PROCESS_NUMBER, uv.DONE))
             break
 
 
-def run_process(execution_id, task_queue, return_queue, error_queue):
+def run_process(instructions, task_queue, return_queue, error_queue):
+    """Permits running process from controller and handling error catching"""
     try:
-        relative_sequence_contruct_generation(execution_id, task_queue, return_queue)
-    except Exception as e:
-        error_queue.put((PROCESS_NUMBER, traceback.format_exc()))
+        relative_sequence_contruct_generation(instructions, task_queue, return_queue)
+    except Exception as error:
+        excecution_information = sys.exc_info()
+        formatted_exception =  traceback.format_exception( *excecution_information)
+        error_queue.put((PROCESS_NUMBER, [error, formatted_exception]))

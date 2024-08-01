@@ -10,7 +10,6 @@ RUN pip install --no-cache-dir pandas\
 
 WORKDIR /src
 
-
 RUN pip install --no-cache-dir ViennaRNA
 
 WORKDIR /src

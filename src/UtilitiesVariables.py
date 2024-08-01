@@ -48,7 +48,7 @@ ARM_SIZE_KEY = "ArmSize"
 PATH = "Path"
 SUBSEQUENCES = "SubSequences"
 
-# Steps
+## Steps
 PROCESSES = {
     0: ("0 - Controller", "Controller"),
     1: ("1 - Reference Sequence Construct Generation", "ReferenceSequenceConstructGenerator"),
@@ -65,4 +65,41 @@ PROCCES_ACTIVE_FOR_STEPS = {
     2: [6]
 }
 
+## Process Log
+TIMEPOINTS_KEY =  "Timepoints"
+START_APP_KEY = "Starting Application"
+START_PROCESS_KEY = [f"Starting Process: " + process[0] for _, process in PROCESSES.items()]
+FINISH_PROCESS_KEY = [f"Finishing Process:  " + process[0] for _, process in PROCESSES.items()]
+END_APP_KEY = "Ending Application"
+LOOP_KEY = "Loop Start"
+LOOP_YIELD_KEY = "Loop Yield"
+ERROR_KEY = "Error"
 
+PROCESS_LOG = {
+   TIMEPOINTS_KEY: {
+       START_APP_KEY: None,
+       START_PROCESS_KEY[1]: None,
+       START_PROCESS_KEY[2]: None,
+       START_PROCESS_KEY[3]: None,
+       START_PROCESS_KEY[4]: None,
+       START_PROCESS_KEY[5]: None,
+       START_PROCESS_KEY[6]: None,
+       FINISH_PROCESS_KEY[1]: None,
+       FINISH_PROCESS_KEY[2]: None,
+       FINISH_PROCESS_KEY[3]: None,
+       FINISH_PROCESS_KEY[4]: None,
+       FINISH_PROCESS_KEY[5]: None,
+       FINISH_PROCESS_KEY[6]: None,
+       END_APP_KEY: None
+   },
+   LOOP_KEY: {},
+   LOOP_YIELD_KEY: {},
+   ERROR_KEY : {}
+}
+
+
+## Queues reserved keywords
+TASK = "Task"
+RETURN = "Return"
+ERRORS = "Errors"
+DONE = "Done"
